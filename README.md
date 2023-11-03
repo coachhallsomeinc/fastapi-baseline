@@ -28,11 +28,11 @@ alembic downgrade -1
 
 ```txt title=".env.example"
 DATABASE_HOST=localhost
-DATABASE_NAME=fullstackbook-todo-fastapi
+DATABASE_NAME=fastapi-db
 DATABASE_USER=postgres
 DATABASE_PASSWORD=
 DATABASE_PORT=5432
-APP_NAME="Full Stack Book To Do"
+APP_NAME="FastAPI Auth Baseline"
 ```
 
 ```python title="config.py"
