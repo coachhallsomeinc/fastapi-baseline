@@ -11,9 +11,5 @@ RUN apt-get update && apt-get install -y \
     
 USER gitpod
 RUN pyenv install 3.11 \
-    && pyenv global 3.11
-RUN pip install --no-cache-dir psycopg2-binary
-
-
-
-
+    && pyenv global 3.11 \
+    && pip install --no-cache-dir psycopg2-binary
