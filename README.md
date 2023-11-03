@@ -10,15 +10,11 @@
 ## Command Line
 
 ```bash title="Terminal"
-mkdir fullstackbook-todo-fastapi
-cd fullstackbook-todo-fastapi
-python3 -m venv venv
-. venv/bin/activate
-pip install fastapi "uvicorn[standard]" alembic psycopg2 pytest requests
+pip install fastapi "uvicorn[standard]" alembic psycopg2 pytest requests "python-jose[cryptography]" "passlib[bcrypt]" python-multipart
 pip freeze > requirements.txt
 uvicorn main:app --reload
-createdb fullstackbook-todo-fastapi
-psql fullstackbook-todo-fastapi
+createdb fastapi-db
+psql fastapi-db
 alembic init alembic
 alembic revision -m "create users table"
 alembic revision -m "create roles table"
