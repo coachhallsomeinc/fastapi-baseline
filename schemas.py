@@ -10,7 +10,7 @@ class ToDoResponse(BaseModel):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class SignInRequest(BaseModel):
     username: str
@@ -25,7 +25,7 @@ class TokenJson(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    username: str = None
 
 class UserIn(BaseModel):
     username: str
