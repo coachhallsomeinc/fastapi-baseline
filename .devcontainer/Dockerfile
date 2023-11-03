@@ -1,15 +1,9 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11
-
-# Set Python to run in unbuffered mode
-ENV PYTHONUNBUFFERED 1
-
-# Install any needed packages specified in requirements.txt
-RUN apt-get update && apt-get install -y \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-    
+FROM gitpod/workspace-python
+USER root
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 USER gitpod
 RUN pyenv install 3.11 \
-    && pyenv global 3.11 \
-    && pip install --no-cache-dir psycopg2-binary
+    && pyenv global 3.11
