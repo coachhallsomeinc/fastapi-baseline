@@ -20,6 +20,9 @@ uvicorn main:app --reload
 createdb fullstackbook-todo-fastapi
 psql fullstackbook-todo-fastapi
 alembic init alembic
+alembic revision -m "create users table"
+alembic revision -m "create roles table"
+alembic revision -m "create users_to_roles table"
 alembic revision -m "create todos table"
 alembic upgrade head
 alembic downgrade -1
