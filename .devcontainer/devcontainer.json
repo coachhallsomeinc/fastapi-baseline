@@ -2,6 +2,8 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/postgres
 {
 	"name": "Python 3 & PostgreSQL",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/python:0-3.11",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
