@@ -1,17 +1,12 @@
-from typing import List
-from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, HTTPException, status
-import schemas
-import crud
-from database import SessionLocal
-
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import psycopg
 from psycopg.rows import class_row
 
-from app.db import get_conn
+from database import get_async_pool
 
 router = APIRouter(prefix="/v1/todos")
+
+pool = get_async_pool()
 
 class ToDo(BaseModel):
     id: int | None
@@ -20,41 +15,50 @@ class ToDo(BaseModel):
 
 
 @router.post("")
-def create_todo(todo: ToDo):
-    with get_conn() as conn:
-        conn.execute(
+async def create_todo(todo: ToDo):
+    async with pool.connection() as conn:
+        await conn.execute(
             "insert into todos (name, completed) values (%s, %s)",
             [todo.name, todo.completed],
         )
 
 
 @router.get("")
-def get_todos():
-    with get_conn() as conn, conn.cursor(row_factory=class_row(ToDo)) as cur:
-        records = cur.execute("select * from todos").fetchall()
+async def get_todos():
+    async with pool.connection() as conn, conn.cursor(
+        row_factory=class_row(ToDo)
+    ) as cur:
+        await cur.execute("select * from todos")
+        records = await cur.fetchall()
         return records
 
 
 @router.get("/{id}")
-def get_todo(id: int):
-    with get_conn() as conn, conn.cursor(row_factory=class_row(ToDo)) as cur:
-        record = cur.execute("select * from todos where id=%s", [id]).fetchone()
+async def get_todo(id: int):
+    async with pool.connection() as conn, conn.cursor(
+        row_factory=class_row(ToDo)
+    ) as cur:
+        await cur.execute("select * from todos where id=%s", [id])
+        record = await cur.fetchone()
         if not record:
             raise HTTPException(404)
         return record
 
 
 @router.put("/{id}")
-def update_todo(id: int, todo: ToDo):
-    with get_conn() as conn, conn.cursor(row_factory=class_row(ToDo)) as cur:
-        record = cur.execute(
+async def update_todo(id: int, todo: ToDo):
+    async with pool.connection() as conn, conn.cursor(
+        row_factory=class_row(ToDo)
+    ) as cur:
+        await cur.execute(
             "update todos set name=%s, completed=%s where id=%s returning *",
             [todo.name, todo.completed, id],
-        ).fetchone()
+        )
+        record = await cur.fetchone()
         return record
 
 
 @router.delete("/{id}")
-def delete_todo(id: int):
-    with get_conn() as conn:
-        conn.execute("delete from todos where id=%s", [id])
+async def delete_todo(id: int):
+    async with pool.connection() as conn:
+        await conn.execute("delete from todos where id=%s", [id])
