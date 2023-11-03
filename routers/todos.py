@@ -5,43 +5,56 @@ import schemas
 import crud
 from database import SessionLocal
 
-router = APIRouter(
-    prefix="/todos"
-)
+from pydantic import BaseModel
+import psycopg
+from psycopg.rows import class_row
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+from app.db import get_conn
 
-@router.post("", status_code=status.HTTP_201_CREATED)
-def create_todo(todo: schemas.ToDoRequest, db: Session = Depends(get_db)):
-    todo = crud.create_todo(db, todo)
-    return todo
+router = APIRouter(prefix="/v1/todos")
 
-@router.get("", response_model=List[schemas.ToDoResponse])
-def get_todos(completed: bool = None, db: Session = Depends(get_db)):
-    todos = crud.read_todos(db, completed)
-    return todos
+class ToDo(BaseModel):
+    id: int | None
+    name: str
+    completed: bool
+
+
+@router.post("")
+def create_todo(todo: ToDo):
+    with get_conn() as conn:
+        conn.execute(
+            "insert into todos (name, completed) values (%s, %s)",
+            [todo.name, todo.completed],
+        )
+
+
+@router.get("")
+def get_todos():
+    with get_conn() as conn, conn.cursor(row_factory=class_row(ToDo)) as cur:
+        records = cur.execute("select * from todos").fetchall()
+        return records
+
 
 @router.get("/{id}")
-def get_todo_by_id(id: int, db: Session = Depends(get_db)):
-    todo = crud.read_todo(db, id)
-    if todo is None:
-        raise HTTPException(status_code=404, detail="to do not found")
-    return todo
+def get_todo(id: int):
+    with get_conn() as conn, conn.cursor(row_factory=class_row(ToDo)) as cur:
+        record = cur.execute("select * from todos where id=%s", [id]).fetchone()
+        if not record:
+            raise HTTPException(404)
+        return record
+
 
 @router.put("/{id}")
-def update_todo(id: int, todo: schemas.ToDoRequest, db: Session = Depends(get_db)):
-    todo = crud.update_todo(db, id, todo)
-    if todo is None:
-        raise HTTPException(status_code=404, detail="to do not found")
-    return todo
+def update_todo(id: int, todo: ToDo):
+    with get_conn() as conn, conn.cursor(row_factory=class_row(ToDo)) as cur:
+        record = cur.execute(
+            "update todos set name=%s, completed=%s where id=%s returning *",
+            [todo.name, todo.completed, id],
+        ).fetchone()
+        return record
 
-@router.delete("/{id}", status_code=status.HTTP_200_OK)
-def delete_todo(id: int, db: Session = Depends(get_db)):
-    res = crud.delete_todo(db, id)
-    if res is None:
-        raise HTTPException(status_code=404, detail="to do not found")
+
+@router.delete("/{id}")
+def delete_todo(id: int):
+    with get_conn() as conn:
+        conn.execute("delete from todos where id=%s", [id])
