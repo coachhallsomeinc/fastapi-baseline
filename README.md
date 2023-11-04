@@ -14,7 +14,7 @@ pip install fastapi "uvicorn[standard]" alembic psycopg pytest requests "python-
 pip freeze > requirements.txt
 sudo apt update
 sudo apt upgrade
-sudo apt install postgresql-15
+sudo apt install postgresql postgresql-contrib
 uvicorn main:app --reload
 createdb fastapi-db
 psql fastapi-db
