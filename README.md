@@ -10,7 +10,7 @@
 ## Command Line
 
 ```bash title="Terminal"
-pip install fastapi "uvicorn[standard]" alembic psycopg2 pytest requests "python-jose[cryptography]" "passlib[bcrypt]" python-multipart
+pip install fastapi "uvicorn[standard]" alembic psycopg pytest requests "python-jose[cryptography]" "passlib[bcrypt]" python-multipart
 pip freeze > requirements.txt
 uvicorn main:app --reload
 createdb fastapi-db
