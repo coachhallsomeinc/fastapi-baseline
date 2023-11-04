@@ -12,6 +12,9 @@
 ```bash title="Terminal"
 pip install fastapi "uvicorn[standard]" alembic psycopg pytest requests "python-jose[cryptography]" "passlib[bcrypt]" python-multipart
 pip freeze > requirements.txt
+sudo apt update
+sudo apt upgrade
+sudo apt install postgresql-15
 uvicorn main:app --reload
 createdb fastapi-db
 psql fastapi-db
